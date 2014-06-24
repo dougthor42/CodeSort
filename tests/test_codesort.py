@@ -14,7 +14,6 @@ from __future__ import print_function, division
 import unittest
 import os.path
 import codesort.codesort as codesort
-from douglib.core import binary_file_compare
 
 
 class CodeSort(unittest.TestCase):
@@ -36,7 +35,7 @@ class CodeSort(unittest.TestCase):
 
         for test_file, ref_file in self.known_values:
 #            result = codesort(test_file, True)
-#            self.assertTrue(binary_file_compare(result, ref_file))
+#            self.assertTrue(codesort.binary_file_compare(result, ref_file))
 #            print(self.known_values)
             continue
 

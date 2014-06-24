@@ -203,6 +203,33 @@ def classify_block(code_block):
     return code_type
 
 
+def binary_file_compare(file1, file2):
+    """
+    Compares two files byte-by-byte. Usefull if the md5sum is different
+    for some reason.
+    """
+    match = False
+    with open(file1, 'rb') as ref:
+        with open(file2, 'rb') as tmp:
+            # File Size Check
+            ref.seek(-1, 2)
+            tmp.seek(-1, 2)
+            ref_size = ref.tell()
+            if not ref_size == tmp.tell():
+                return match
+            # Last byte check
+            if not ref.read() == tmp.read():
+                return match
+            # move back to the begining and iterate through the file
+            ref.seek(0, 0)
+            tmp.seek(0, 0)
+            for ref_byte, tmp_byte in zip(ref, tmp):
+                match = ref_byte == tmp_byte
+                if not match:
+                    break
+    return match
+
+
 def main():
     """ Main Code """
     args = docopt(__doc__, version='v0.1')
