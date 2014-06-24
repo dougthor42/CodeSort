@@ -80,9 +80,10 @@ class ClassifyBlock(unittest.TestCase):
     """ Unit testing for the classify_block function """
     ex1 = ('class Apple(object):', 'class')
     ex2 = ('   def my_func(a, b):', 'function')
-    ex3 = ('y = 4x', 'other')
-#    ex4 = ("""   @decorator1
-#    def my_decorated_function(b, c):)""", 'decorator')
+    ex3 = ('y = 4x', 'instance_var')
+    ex4 = ("""    @decorator1
+    @decorator2
+    def my_decorated_function(b, c):)""", 'function')
     ex5 = ('# a comment', 'comment')
     ex6 = ('from module import thing', 'import')
     ex7 = ('import other_module', 'import')
@@ -92,7 +93,7 @@ class ClassifyBlock(unittest.TestCase):
     examples = [ex1,
                 ex2,
                 ex3,
-#                ex4,
+                ex4,
                 ex5,
                 ex6,
                 ex7,
@@ -105,6 +106,27 @@ class ClassifyBlock(unittest.TestCase):
         for block, expected in self.examples:
             code_type = codesort.classify_block(block)
             self.assertEqual(code_type, expected)
+
+    def test_constant_match(self):
+        """ Makes sure that constants that match PEP8 standards will work """
+        blocks = ['CONSTANT = "helloooo, nurse!"',
+                  'SOME_CONSTANT = 57',
+                  '99_PROBLEMS = "but a bug aint one!"',
+                  'CONST_1 = 2',
+                  ]
+
+        for block in blocks:
+            self.assertEqual(codesort.classify_block(block), 'constant')
+
+    def test_constant_not_match(self):
+        """ Test that some common invalid constants are not matched """
+        blocks = ['Constant=[x for x in range(5)]',
+                  'con=2',
+                  'AAA=-11',
+                  ]
+
+        for block in blocks:
+            self.assertNotEqual(codesort.classify_block(block), 'constant')
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=2)

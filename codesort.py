@@ -24,18 +24,20 @@ Options:
 from __future__ import print_function, division
 from docopt import docopt
 import os.path
-import string
+import re
 
 
-BLOCK_TYPE = {'@': 'decorator',
-              'class': 'class',
-              'def': 'function',
-              '#': 'comment',
-              'from': 'import',
-              'import': 'import',
-              '"""': 'docstring',
-#              set(string.ascii_uppercase): 'constant',
-              }
+BLOCK_TYPE = [(re.compile(r'[ ]*@.'), 'decorator'),
+              (re.compile(r'[ ]*class .'), 'class'),
+              (re.compile(r'[ ]*def .'), 'function'),
+              (re.compile(r'[ ]*#.'), 'comment'),
+              (re.compile(r'[ ]*from .'), 'import'),
+              (re.compile(r'[ ]*import .'), 'import'),
+              (re.compile(r'[ ]*""".'), 'docstring'),
+              (re.compile(r'[ ]*[A-Z0-9_]+ = .*'), 'constant'),
+              (re.compile(r'[ ]*[a-z0-9_]+ = .*'), 'instance_var'),
+              (re.compile(r'[ ]*.'), 'other'),
+              ]
 
 
 class CodeSort(object):
@@ -82,8 +84,7 @@ class CodeBlock(object):
     from the decorator (if any) to the end of the indent.
 
 
-    Public Methods:
-        ???
+    Public Methods:BLOCK_TYPE
         I can't think of any right now...
 
     Private Methods:
@@ -116,17 +117,7 @@ class CodeBlock(object):
 
     def _set_type(self):
         """ Private methon that actually sets the type attribute """
-        # Simple case: first line starts with 'class' or 'def'
-        # first, move through any whitespace to get to the line starter
-        # Remember, we don't actually want to change any of the original text.
-        type_str = self.code_text.lstrip().split(' ')[0]
-        if type_str == 'class':
-            code_type = 'class'
-        elif type_str == 'def':
-            code_type = 'function'
-        else:
-            code_type = 'other'
-        self.code_type = code_type
+        self.code_type = classify_block(self.code_text)
 
     def _set_name(self):
         """ Private methon that actually sets the name of the code block """
@@ -168,39 +159,19 @@ def file_prompt():
 
 
 def classify_block(code_block):
-    """ Classifies a code block to one a BLOCK_TYPE category """
-    code_type = 'none'
-    # First, we ignore any whitespace in front
-    temp = code_block.lstrip()
-    # if the line starts with an @ symbol, it's decorated, so we
-    # need to look at the next line for the type. Repeat until a
-    # type is found. It's also safe to assume it's a mulitline thing.
-    if temp.startswith('@'):
-        multiline = temp.splitlines()
-        for line in multiline:
-            if not line.startswith('@'):
-                # apply the typing logic
-                code_type = 'decorator'
-                break
-    elif temp.startswith('class'):
-        # then it's a class, duh
-        code_type = 'class'
-    elif temp.startswith('def'):
-        # a function or a method
-        code_type = 'function'
-    elif temp.startswith('#'):
-        # a comment
-        code_type = 'comment'
-    elif temp.startswith('from') or temp.startswith('import'):
-        # import statement
-        code_type = 'import'
-    elif temp.startswith('"""'):
-        code_type = 'docstring'
-    elif set(temp.split(' ')[0]) <= set(string.ascii_uppercase):
-        code_type = 'constant'
-    else:
-        code_type = 'other'
-    return code_type
+    """ Classifies a code block to one BLOCK_TYPE category """
+    match = False
+
+    for regex_key, code_type in BLOCK_TYPE:
+        if regex_key.match(code_block):
+            # if it's a decorator, we need to go deeper
+            if code_type == 'decorator':
+                new_block = '\n'.join(code_block.split('\n')[1:])
+                code_type = classify_block(new_block)
+            return code_type
+
+    if not match:
+        return 'unknown'
 
 
 def binary_file_compare(file1, file2):
@@ -265,15 +236,43 @@ def main():
                     (block_2, ("my_function", 'function', 2)),
                     )
 
-    """ KVT for the CodeBlock class. """
+    # KVT for the CodeBlock class.
     for block, expected in known_values:
         result_obj = CodeBlock(block)
         print(result_obj)
 
+    print()
+    print()
 # ---------------------------------------------------------
 # End Quick Testing
 # ---------------------------------------------------------
+    # Unit testing for the classify_block function
+    ex1 = ('class Apple(object):', 'class')
+    ex2 = ('   def my_func(a, b):', 'function')
+    ex3 = ('y = 4x', 'instance_var')
+    ex4 = ("""    @decorator1
+    @decorator2
+    def my_decorated_function(b, c):)""", 'function')
+    ex5 = ('# a comment', 'comment')
+    ex6 = ('from module import thing', 'import')
+    ex7 = ('import other_module', 'import')
+    ex8 = ('""" A docstring """', 'docstring')
+    ex9 = ('CONSTANT = 57', 'constant')
 
+    examples = [ex1,
+                ex2,
+                ex3,
+                ex4,
+                ex5,
+                ex6,
+                ex7,
+                ex8,
+                ex9,
+                ]
+
+    for block, expected in examples:
+        code_type = classify_block(block)
+        print(code_type + '\t' + expected)
 
 if __name__ == "__main__":
     main()
