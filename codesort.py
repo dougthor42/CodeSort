@@ -275,4 +275,5 @@ def main():
         print(code_type + '\t' + expected)
 
 if __name__ == "__main__":
+    print("Random code addition for SVN check")
     main()
