@@ -79,3 +79,9 @@ def module_func_c(c):
 if __name__ == "__main__":
     """ This should be last """
     pass
+
+
+# A comment that starts the orphaned module code
+x = 5
+y = 27
+print(x+y)

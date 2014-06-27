@@ -201,6 +201,14 @@ def binary_file_compare(file1, file2):
     return match
 
 
+def split_into_blocks(code_block):
+    """ Splits code_block into it's compenents. Can be use recursively. """
+    # In python, code blocks are separated by whitespace, so we need to find
+    # those and use that as our delimiter. Keep in mind that there are things
+    # that invalidate whitespace, such as (, ", """, ', ''', [, and {.
+    pass
+
+
 def main():
     """ Main Code """
     args = docopt(__doc__, version='v0.1')
@@ -246,33 +254,8 @@ def main():
 # ---------------------------------------------------------
 # End Quick Testing
 # ---------------------------------------------------------
-    # Unit testing for the classify_block function
-    ex1 = ('class Apple(object):', 'class')
-    ex2 = ('   def my_func(a, b):', 'function')
-    ex3 = ('y = 4x', 'instance_var')
-    ex4 = ("""    @decorator1
-    @decorator2
-    def my_decorated_function(b, c):)""", 'function')
-    ex5 = ('# a comment', 'comment')
-    ex6 = ('from module import thing', 'import')
-    ex7 = ('import other_module', 'import')
-    ex8 = ('""" A docstring """', 'docstring')
-    ex9 = ('CONSTANT = 57', 'constant')
 
-    examples = [ex1,
-                ex2,
-                ex3,
-                ex4,
-                ex5,
-                ex6,
-                ex7,
-                ex8,
-                ex9,
-                ]
-
-    for block, expected in examples:
-        code_type = classify_block(block)
-        print(code_type + '\t' + expected)
+    
 
 if __name__ == "__main__":
     print("Random code addition for SVN check")

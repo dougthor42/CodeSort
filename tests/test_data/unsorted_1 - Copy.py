@@ -70,6 +70,7 @@ def module_func_a(a):
     """ I hope this works """
     pass
 
+
 if __name__ == "__main__":
     """ This should be last """
     pass
@@ -78,3 +79,9 @@ if __name__ == "__main__":
 def module_func_c(c):
     """ But in the original file, it's not! """
     pass
+
+
+# A comment that starts the orphaned module code
+x = 5
+y = 27
+print(x+y)
