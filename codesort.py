@@ -25,6 +25,11 @@ from __future__ import print_function, division
 from docopt import docopt
 import os.path
 import re
+import tokenize
+import StringIO
+
+
+__author__ = "Douglas Thor"
 
 
 BLOCK_TYPE = [(re.compile(r'[ ]*@.'), 'decorator'),
@@ -206,7 +211,89 @@ def split_into_blocks(code_block):
     # In python, code blocks are separated by whitespace, so we need to find
     # those and use that as our delimiter. Keep in mind that there are things
     # that invalidate whitespace, such as (, ", """, ', ''', [, and {.
-    pass
+
+    temp = """import apples
+
+def myfunc(a, b):
+    if a < 0:
+        return b
+    if a > 0:
+        return a + b
+    return 0
+
+def myfunc2(a):
+    return 'xsdfsd' + (a-2)*(a+3)"""
+
+    block_starts = (
+                    "def",
+                    "class",
+                    )
+
+    use_file = 0
+    if use_file == 1:
+        temp = open(code_block)
+        a = tokenize.generate_tokens(temp.readline)
+    else:
+        a = tokenize.generate_tokens(StringIO.StringIO(temp).readline)
+
+    print(a)
+    result = []
+    indent_pos = 0
+    in_block = False
+    skip_to_newline = False
+    log_str = "{num}\t{name}\t{indent}\t{st}\t{end}\t|{line}"
+    for toknum, tokval, srowcol, erowcol, logical_l in a:
+        print(log_str.format(num=toknum,
+                             name=tokval.strip(),
+                             st=srowcol,
+                             end=erowcol,
+                             line=logical_l.rstrip(),
+                             indent=indent_pos,
+                             ))
+
+        if skip_to_newline:
+            if not toknum == tokenize.NEWLINE:
+                continue
+            else:
+                skip_to_newline = False
+                continue
+        # each time we see an indent token, we need to add 1 to a counter
+        # the dedent subtracts one.
+        # when the counter is 0, then we've ended our block.
+        if toknum == tokenize.INDENT:
+            indent_pos += 1
+        if toknum == tokenize.DEDENT:
+            indent_pos -= 1
+
+        if toknum == tokenize.NAME and tokval in block_starts and not in_block:
+            # then we start the block
+            in_block = True
+            print("Start Row: {row}\t{name}".format(row=srowcol[0],
+                                                    name=tokval,
+                                                    ))
+            # we need some way to continue until the next logical line is found
+            skip_to_newline = True
+            continue
+
+        if indent_pos == 0 and in_block:
+            in_block = False
+            # we want to consider the end line to be the line above, hence -1
+            print("End Row: {row}".format(row=srowcol[0] - 1))
+
+
+    # If I use the tokenize values, then it appears that a block:
+    #   1. Starts on the line abve the tokenize.INDENT (5) token
+    #   2. Ends on the next tokenize.DEDENT (6) token.
+    #   3. should only be counted as a major block if
+    #       1. the first tokenize.NAME (1) token is def, class, etc.
+    #       2. there is 1 or 2 tokenize.NL (54) tokens preceeding it
+    # the number of dedents before the NAME token will tell you what level
+    # you're on. Example: going in with 3 indents but then only 2 dedents
+    # means you're still in the main block.
+
+    # if a line starts with 4 spaces (or more) then it's a block. Let's
+    # start with that.
+
 
 
 def main():
@@ -254,8 +341,8 @@ def main():
 # ---------------------------------------------------------
 # End Quick Testing
 # ---------------------------------------------------------
+    split_into_blocks(args['FILE'])
 
-    
 
 if __name__ == "__main__":
     print("Random code addition for SVN check")
