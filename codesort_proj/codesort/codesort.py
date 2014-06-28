@@ -207,22 +207,10 @@ def binary_file_compare(file1, file2):
 
 
 def split_into_blocks(code_block):
-    """ Splits code_block into it's compenents. Can be use recursively. """
+    """ Splits code_block into it's compenents. Can be use recursively? """
     # In python, code blocks are separated by whitespace, so we need to find
     # those and use that as our delimiter. Keep in mind that there are things
     # that invalidate whitespace, such as (, ", """, ', ''', [, and {.
-
-    temp = """import apples
-
-def myfunc(a, b):
-    if a < 0:
-        return b
-    if a > 0:
-        return a + b
-    return 0
-
-def myfunc2(a):
-    return 'xsdfsd' + (a-2)*(a+3)"""
 
     block_starts = (
                     "def",
@@ -233,8 +221,10 @@ def myfunc2(a):
     if use_file == 1:
         temp = open(code_block)
         a = tokenize.generate_tokens(temp.readline)
+        temp.close()
+
     else:
-        a = tokenize.generate_tokens(StringIO.StringIO(temp).readline)
+        a = tokenize.generate_tokens(StringIO.StringIO(code_block).readline)
 
     print(a)
     result = []
@@ -268,7 +258,8 @@ def myfunc2(a):
         if toknum == tokenize.NAME and tokval in block_starts and not in_block:
             # then we start the block
             in_block = True
-            print("Start Row: {row}\t{name}".format(row=srowcol[0],
+            start_row = srowcol[0]
+            print("Start Row: {row}\t{name}".format(row=start_row,
                                                     name=tokval,
                                                     ))
             # we need some way to continue until the next logical line is found
@@ -278,7 +269,12 @@ def myfunc2(a):
         if indent_pos == 0 and in_block:
             in_block = False
             # we want to consider the end line to be the line above, hence -1
-            print("End Row: {row}".format(row=srowcol[0] - 1))
+            end_row = srowcol[0] - 1
+            print("End Row: {row}".format(row=end_row))
+            result.append((start_row, end_row))
+
+    print(result)
+    return result
 
 
     # If I use the tokenize values, then it appears that a block:
@@ -293,7 +289,6 @@ def myfunc2(a):
 
     # if a line starts with 4 spaces (or more) then it's a block. Let's
     # start with that.
-
 
 
 def main():
@@ -341,7 +336,6 @@ def main():
 # ---------------------------------------------------------
 # End Quick Testing
 # ---------------------------------------------------------
-    split_into_blocks(args['FILE'])
 
 
 if __name__ == "__main__":

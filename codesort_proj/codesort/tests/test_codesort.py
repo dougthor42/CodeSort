@@ -128,5 +128,52 @@ class ClassifyBlock(unittest.TestCase):
         for block in blocks:
             self.assertNotEqual(codesort.classify_block(block), 'constant')
 
+
+class SplitIntoBlocks(unittest.TestCase):
+    """ Unit Testing for the split_into_blocks function.
+    Consider renaming to block_split or split_blocks """
+    # Test Block file is located in .../test_data/split_blocks.
+    test1 = ("""def myfunc(a, b):
+    if a < 0:
+        return b
+    if a > 0:
+        return a + b
+    return 0
+
+def myfunc2(a):
+    return 'xsdfsd' + (a-2)*(a+3)""", [(1, 7), (8, 9)])
+    test2 = ("""def func1(a):
+    return a
+
+def func2(b):
+    return b
+
+def func3(c):
+    return c""", [(1, 3), (4, 6), (7, 8)])
+
+    test3 = ("""import apples
+
+def myfunc(a, b):
+    if a < 0:
+        return b
+    if a > 0:
+        return a + b
+    return 0
+
+def myfunc2(a):
+    return 'xsdfsd' + (a-2)*(a+3)""", [(3, 9), (10, 11)])
+    known_values = (test1,
+                    test2,
+                    test3,
+                    )
+
+    def test_known_values(self):
+        """ KVT """
+        for code_block, expected in self.known_values:
+            print(code_block)
+            result = codesort.split_into_blocks(code_block)
+            self.assertEqual(result, expected)
+
+
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=2)
