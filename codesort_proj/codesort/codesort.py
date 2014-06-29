@@ -206,89 +206,83 @@ def binary_file_compare(file1, file2):
     return match
 
 
-def split_into_blocks(code_block):
-    """ Splits code_block into it's compenents. Can be use recursively? """
-    # In python, code blocks are separated by whitespace, so we need to find
-    # those and use that as our delimiter. Keep in mind that there are things
-    # that invalidate whitespace, such as (, ", """, ', ''', [, and {.
+def print_tokens(code):
+    """ Prints out the tokenized form of code in an easy-to-ready format. """
+    import os.path
 
-    block_starts = (
-                    "def",
-                    "class",
-                    )
-
-    use_file = 0
-    if use_file == 1:
-        temp = open(code_block)
-        a = tokenize.generate_tokens(temp.readline)
-        temp.close()
-
+    if os.path.isfile(code):
+        with open(code) as open_file:
+            text = ''.join(open_file.readlines())
     else:
-        a = tokenize.generate_tokens(StringIO.StringIO(code_block).readline)
+        text = code
 
-    print(a)
-    result = []
+    token_text = tokenize.generate_tokens(StringIO.StringIO(text).readline)
+
     indent_pos = 0
-    in_block = False
-    skip_to_newline = False
-    log_str = "{num}\t{name}\t{indent}\t{st}\t{end}\t|{line}"
-    for toknum, tokval, srowcol, erowcol, logical_l in a:
-        print(log_str.format(num=toknum,
-                             name=tokval.strip(),
-                             st=srowcol,
-                             end=erowcol,
-                             line=logical_l.rstrip(),
-                             indent=indent_pos,
-                             ))
+    format_str = "{num:>3}\t{name:<10}\t{indent}\t{st}\t{end}\t|{line:<30}"
+    for toknum, tokval, srowcol, erowcol, logical_l in token_text:
+        print(format_str.format(num=toknum,
+                                name=tokval.strip()[:7].replace("\n", "/n"),
+                                st=srowcol,
+                                end=erowcol,
+                                line=logical_l.rstrip()[:30].replace("\n",
+                                                                     "/n"),
+                                indent=indent_pos,
+                                ))
 
-        if skip_to_newline:
-            if not toknum == tokenize.NEWLINE:
-                continue
-            else:
-                skip_to_newline = False
-                continue
-        # each time we see an indent token, we need to add 1 to a counter
-        # the dedent subtracts one.
-        # when the counter is 0, then we've ended our block.
         if toknum == tokenize.INDENT:
             indent_pos += 1
         if toknum == tokenize.DEDENT:
             indent_pos -= 1
 
-        if toknum == tokenize.NAME and tokval in block_starts and not in_block:
-            # then we start the block
-            in_block = True
-            start_row = srowcol[0]
-            print("Start Row: {row}\t{name}".format(row=start_row,
-                                                    name=tokval,
-                                                    ))
-            # we need some way to continue until the next logical line is found
-            skip_to_newline = True
-            continue
 
-        if indent_pos == 0 and in_block:
-            in_block = False
-            # we want to consider the end line to be the line above, hence -1
-            end_row = srowcol[0] - 1
-            print("End Row: {row}".format(row=end_row))
-            result.append((start_row, end_row))
+def find_fold_points(block):
+    """
+    Returns a list of (indent, start_row, end_row) tuples that denote fold
+    locations. Basically anywhere that there's an indent.
+    """
+    token_block = tokenize.generate_tokens(StringIO.StringIO(block).readline)
+    indent_level = 0
+    nl_counter = 0
+    indents = []
+    result = []
+    for toknum, tokval, srowcol, erowcol, logical_l in token_block:
+        if toknum == tokenize.NL:
+            # Then it's a blank line and we need to add too the blank counter
+            # when the DEDENT is found, then we subtract counter from the line
+            # number and also reset the counter.
+            # Also reset the counter if there is anything in between.
+            nl_counter += 1
 
-    print(result)
+        if toknum == tokenize.INDENT:
+            # TODO: Add make sure that comment lines are done correctly
+            #   For example: a comment on the line after "def" will not show
+            #   up as an indent even though it is indented.
+            indent_level += 1
+            indents.append(srowcol[0] - 1)
+
+        if toknum == tokenize.DEDENT:
+            indent_level -= 1
+            # the next DEDENT belongs to the most recent INDENT, so we pop off
+            # the last indent from the stack
+            # I also have to go backwards through the lines to figure out
+            # where the last non-whitespace is, I think.
+            matched_indent = indents.pop()
+            result.append((matched_indent,
+                           srowcol[0] - 1 - nl_counter,
+                           indent_level + 1))
+        if toknum not in (tokenize.NL,
+                          tokenize.NEWLINE,
+                          tokenize.INDENT,
+                          tokenize.DEDENT,
+                          tokenize.COMMENT,
+                          ):
+            nl_counter = 0
+
+    if len(indents) != 0:
+        raise ValueError("Number of DEDENTs does not match number of INDENTs.")
+
     return result
-
-
-    # If I use the tokenize values, then it appears that a block:
-    #   1. Starts on the line abve the tokenize.INDENT (5) token
-    #   2. Ends on the next tokenize.DEDENT (6) token.
-    #   3. should only be counted as a major block if
-    #       1. the first tokenize.NAME (1) token is def, class, etc.
-    #       2. there is 1 or 2 tokenize.NL (54) tokens preceeding it
-    # the number of dedents before the NAME token will tell you what level
-    # you're on. Example: going in with 3 indents but then only 2 dedents
-    # means you're still in the main block.
-
-    # if a line starts with 4 spaces (or more) then it's a block. Let's
-    # start with that.
 
 
 def main():
@@ -312,14 +306,20 @@ def main():
     print(cs)
 
     block_1 = """class HelloKitty(object):
+
     def __init__(self):
-        pass
+        if bagle:
+            eat
+        else:
+            sleep
 
     def method(self):
         return 5"""
 
     block_2 = """def my_function(a, b):
-        return a + b"""
+    'string'
+    return a + b
+print(a)"""
 
     # (block, (name, type, num_lines))
     known_values = ((block_1, ("HelloKitty", 'class', 6)),
@@ -336,6 +336,13 @@ def main():
 # ---------------------------------------------------------
 # End Quick Testing
 # ---------------------------------------------------------
+    print(find_fold_points(block_1))
+
+    root_dir = os.getcwd()
+    test_data_path = r"tests\\test_data"
+    file_1_name = "sorted_1.py"
+    file_1 = os.path.join(root_dir, test_data_path, file_1_name)
+    print_tokens(file_1)
 
 
 if __name__ == "__main__":
