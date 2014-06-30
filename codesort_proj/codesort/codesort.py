@@ -238,7 +238,7 @@ def print_tokens(code):
 
 def find_fold_points(block):
     """
-    Returns a list of (indent, start_row, end_row) tuples that denote fold
+    Returns a list of (start_row, end_row, indent) tuples that denote fold
     locations. Basically anywhere that there's an indent.
     """
     token_block = tokenize.generate_tokens(StringIO.StringIO(block).readline)
