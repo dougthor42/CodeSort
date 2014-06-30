@@ -12,7 +12,7 @@ def ClassA(object):
     def __init__(self,
                  var1,
                  var2):
-        """ Nothing needed here! """
+        """ Single Line """
         pass
 
     def _private_a(self,
@@ -20,5 +20,21 @@ def ClassA(object):
                    var2,
                    var3,
                    ):
-        """ And things! """
+        """ Multiline, standard indent level """
+        pass
+
+    def _private_b(self,
+var1,
+var2,
+var3,
+):
+        """ Multiline, no indent """
+        pass
+
+    def _private_c(self,
+           var1,
+       var2,
+               var3,
+         ):
+        """ Multiline, weird indent """
         pass
