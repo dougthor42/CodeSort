@@ -64,8 +64,11 @@ class TestFindFoldPoints(unittest.TestCase):
     """ Test the find_fold_points function """
     root_dir = os.getcwd()
     test_data_path = r"tests\\test_data"
-    file_1_name = "sorted_1.py"
-    file_1 = os.path.join(root_dir, test_data_path, file_1_name)
+    file_1 = "sorted_1.py"
+    file_2 = "2_multiline_defs.py"
+    file_1_path = os.path.join(root_dir, test_data_path, file_1)
+    file_2_path = os.path.join(root_dir, test_data_path, file_2)
+    print(file_2_path)
 
     # Manually determined the start, end, and indent values for the file
     file_1_result = {(10, 34, 1),
@@ -85,14 +88,27 @@ class TestFindFoldPoints(unittest.TestCase):
                      (64, 66, 1),
                      (69, 71, 1),
                      (74, 76, 1),
-                     (79, 81, 1)}
+                     (79, 81, 1),
+                     }
+
+    file_2_result = {(10, 24, 1),
+                     (14, 16, 2),
+                     (22, 24, 2),
+                     }
 
     def test_known_file(self):
-        """ Runs a find_fold_points on a single known file. """
+        """ Runs a find_fold_points on known files. """
         with open(self.file_1) as openfile:
             file_text = "".join(openfile.readlines())
         result = find_fold_points(file_text)
         self.assertSetEqual(set(result), self.file_1_result)
+
+    def test_multiline_defs(self):
+        """ make sure multiline definitions are done correctly """
+        with open(self.file_2) as openfile:
+            file_text = "".join(openfile.readlines())
+        result = find_fold_points(file_text)
+        self.assertSetEqual(set(result), self.file_2_result)
 
 if __name__ == "__main__":
     unittest.main(exit=False, verbosity=1)
