@@ -3,7 +3,7 @@ A Python source-code organization tool.
 
 The goal of this project is to create a tool that will take a python source code file (.py) and organize it to some standard by moving around class and function defintions, while still maintaining original functionality.
 
-The organization will be as follows:
+###The organization will be as follows:
 
 >1. source file encoding (the "# -*- coding: utf-8 -*-" at the start of the file)
 >2. module docstring
@@ -17,7 +17,7 @@ The organization will be as follows:
 >10. if \__name__ == '\__main__' block
 
 
-Classes are to be organized in the following way:
+###Classes are to be organized in the following way:
 
 >0. class docstring
 >1. \__init__
@@ -40,8 +40,6 @@ Classes are to be organized in the following way:
 >18. \<public methods>
 
 
-the private methods are organized alphabetically
-the public methods are organized alhpabetically
+Private and private methods are organized alphabetically.
 
-
-module functions are organized alphabetically, except for the main() function, which is always at the end of the module functions
+Module functions are organized alphabetically, except for the main() function, which is always at the end of the module functions
