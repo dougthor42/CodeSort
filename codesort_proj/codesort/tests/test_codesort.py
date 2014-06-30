@@ -16,6 +16,16 @@ import os
 import codesort.codesort as codesort
 
 
+# Module constants used in most test cases
+DATA_PATH = os.path.join(os.path.split(__file__)[0], 'test_data')
+SORTED_TEST_FILES = ["sorted_1.py",
+                     ]
+UNSORTED_TEST_FILES = ["unsorted_1.py",
+                       ]
+SORTED_TEST_PATHS = [os.path.join(DATA_PATH, x) for x in SORTED_TEST_FILES]
+UNSORTED_TEST_PATHS = [os.path.join(DATA_PATH, x) for x in UNSORTED_TEST_FILES]
+
+
 class CodeSort(unittest.TestCase):
     """ Unit Testing """
     def setUp(self):
@@ -255,8 +265,25 @@ def myfunc2(a):
         with open(self.file_1) as openfile:
             file_text = "".join(openfile.readlines())
         result = codesort.find_fold_points(file_text)
-        print(result)
         self.assertSetEqual(set(result), self.file_1_result)
+
+
+class SplitBlocks(unittest.TestCase):
+    """ doc """
+    def test_known_values(self):
+        """ doc """
+        for path in SORTED_TEST_PATHS:
+            with open(path) as openfile:
+                file_text = "".join(openfile.readlines())
+            try:
+                # TODO: remove dependence on find_fold_points
+                #   (This currently tests two things which is a no-no.)
+                codesort.split_blocks(file_text,
+                                      codesort.find_fold_points(file_text))
+                passed = True
+            except:
+                passed = False
+            self.assertTrue(passed)
 
 
 if __name__ == "__main__":

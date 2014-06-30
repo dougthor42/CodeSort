@@ -285,6 +285,19 @@ def find_fold_points(block):
     return result
 
 
+def split_blocks(code, fold_points):
+    """ splits code into separate blocks """
+    # if a fold point starts with class or def, then it's the start of a block
+    code_lines = code.splitlines()
+    for start, end, indent in fold_points:
+        if code_lines[start - 1].lstrip().startswith('def'):
+            block = '\n'.join(code_lines[start - 1:end])
+            print("----------")
+            print(block)
+            print("----------")
+    return
+
+
 def main():
     """ Main Code """
     args = docopt(__doc__, version='v0.1')
@@ -319,7 +332,11 @@ def main():
     block_2 = """def my_function(a, b):
     'string'
     return a + b
-print(a)"""
+
+def my_func_b(x):
+    return x
+
+print(5)"""
 
     # (block, (name, type, num_lines))
     known_values = ((block_1, ("HelloKitty", 'class', 6)),
@@ -336,13 +353,18 @@ print(a)"""
 # ---------------------------------------------------------
 # End Quick Testing
 # ---------------------------------------------------------
-    print(find_fold_points(block_1))
+#    print(find_fold_points(block_1))
 
     root_dir = os.getcwd()
     test_data_path = r"tests\\test_data"
     file_1_name = "sorted_1.py"
     file_1 = os.path.join(root_dir, test_data_path, file_1_name)
-    print_tokens(file_1)
+#    print_tokens(file_1)
+    
+    folds = find_fold_points(block_2)
+    print(folds)
+    split_blocks(block_2, folds)
+    
 
 
 if __name__ == "__main__":
