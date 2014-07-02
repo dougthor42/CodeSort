@@ -13,7 +13,7 @@ from __future__ import print_function, division
 import unittest
 import os.path
 import tokenize
-import StringIO
+import StringIO.StringIO as StringIO
 
 
 def find_fold_points(block):
@@ -28,7 +28,13 @@ def find_fold_points(block):
                        tokenize.COMMENT,
                        )
 
-    token_block = tokenize.generate_tokens(StringIO.StringIO(block).readline)
+    # temporary code that allows for running a block or a full file
+    if os.path.isfile(block):
+        with open(block) as open_file:
+            token_block = tokenize.generate_tokens(open_file)
+    else:
+        token_block = tokenize.generate_tokens(StringIO(block).readline)
+
     indent_level = 0
     nl_counter = 0
     indents = []
