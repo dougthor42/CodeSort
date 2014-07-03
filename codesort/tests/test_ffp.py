@@ -13,7 +13,7 @@ Created on Wed Jul 02 17:06:51 2014
 from __future__ import print_function
 import unittest
 import os
-import codesort.find_fold_points as ffp
+import find_fold_points as ffp
 
 
 class FindFoldPoints(unittest.TestCase):
@@ -108,8 +108,6 @@ def myfunc2(a):
                     test3,
                     )
 
-    root_dir = os.getcwd()
-    test_data_path = r"codesort\\tests\\test_data"
     file_1_name = "sorted_1.py"
     file_1 = os.path.join(root_dir, test_data_path, file_1_name)
     file_1_result = {(10, 34, 1),

@@ -13,8 +13,8 @@ Created on Wed Jun 18 16:26:08 2014
 from __future__ import print_function, division
 import unittest
 import os
-import codesort.codesort as codesort
-import codesort.find_fold_points as ffp
+import codesort
+import find_fold_points as ffp
 
 
 # Module constants used in most test cases
@@ -30,13 +30,19 @@ UNSORTED_TEST_PATHS = [os.path.join(DATA_PATH, x) for x in UNSORTED_TEST_FILES]
 class CodeSort(unittest.TestCase):
     """ Unit Testing """
     def setUp(self):
-        self.path = r"X:\WinPython27\projects\codesort\tests\test_data"
+#        self.path = r"X:\WinPython27\projects\Codesort\tests\test_data"
+        self.path = os.path.split(__file__)[0]
+        self.test_dir = r"tests\test_data"
         self.filenames = (("unsorted_1.py", "sorted_1.py"),
                           )
         self.known_values = []
         for test_file, ref_file in self.filenames:
-            self.known_values.append((os.path.join(self.path, test_file),
-                                      os.path.join(self.path, ref_file)))
+            self.known_values.append((os.path.join(self.path,
+                                                   self.test_dir,
+                                                   test_file),
+                                      os.path.join(self.path,
+                                                   self.test_dir,
+                                                   ref_file)))
 
     def test_known_values(self):
         """
