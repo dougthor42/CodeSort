@@ -236,53 +236,56 @@ def print_tokens(code):
             indent_pos -= 1
 
 
-def find_fold_points(block):
-    """
-    Returns a list of (start_row, end_row, indent) tuples that denote fold
-    locations. Basically anywhere that there's an indent.
-    """
-    token_block = tokenize.generate_tokens(StringIO.StringIO(block).readline)
-    indent_level = 0
-    nl_counter = 0
-    indents = []
-    result = []
-    for toknum, tokval, srowcol, erowcol, logical_l in token_block:
-        if toknum == tokenize.NL:
-            # Then it's a blank line and we need to add too the blank counter
-            # when the DEDENT is found, then we subtract counter from the line
-            # number and also reset the counter.
-            # Also reset the counter if there is anything in between.
-            nl_counter += 1
-
-        if toknum == tokenize.INDENT:
-            # TODO: Add make sure that comment lines are done correctly
-            #   For example: a comment on the line after "def" will not show
-            #   up as an indent even though it is indented.
-            indent_level += 1
-            indents.append(srowcol[0] - 1)
-
-        if toknum == tokenize.DEDENT:
-            indent_level -= 1
-            # the next DEDENT belongs to the most recent INDENT, so we pop off
-            # the last indent from the stack
-            # I also have to go backwards through the lines to figure out
-            # where the last non-whitespace is, I think.
-            matched_indent = indents.pop()
-            result.append((matched_indent,
-                           srowcol[0] - 1 - nl_counter,
-                           indent_level + 1))
-        if toknum not in (tokenize.NL,
-                          tokenize.NEWLINE,
-                          tokenize.INDENT,
-                          tokenize.DEDENT,
-                          tokenize.COMMENT,
-                          ):
-            nl_counter = 0
-
-    if len(indents) != 0:
-        raise ValueError("Number of DEDENTs does not match number of INDENTs.")
-
-    return result
+#def find_fold_points(block):
+#    """
+#    Returns a list of (start_row, end_row, indent) tuples that denote fold
+#    locations. Basically anywhere that there's an indent.
+#    """
+#    import find_fold_points as ffp
+#    return ffp.find_fold_points(block)
+    
+#    token_block = tokenize.generate_tokens(StringIO.StringIO(block).readline)
+#    indent_level = 0
+#    nl_counter = 0
+#    indents = []
+#    result = []
+#    for toknum, tokval, srowcol, erowcol, logical_l in token_block:
+#        if toknum == tokenize.NL:
+#            # Then it's a blank line and we need to add too the blank counter
+#            # when the DEDENT is found, then we subtract counter from the line
+#            # number and also reset the counter.
+#            # Also reset the counter if there is anything in between.
+#            nl_counter += 1
+#
+#        if toknum == tokenize.INDENT:
+#            # TODO: Add make sure that comment lines are done correctly
+#            #   For example: a comment on the line after "def" will not show
+#            #   up as an indent even though it is indented.
+#            indent_level += 1
+#            indents.append(srowcol[0] - 1)
+#
+#        if toknum == tokenize.DEDENT:
+#            indent_level -= 1
+#            # the next DEDENT belongs to the most recent INDENT, so we pop off
+#            # the last indent from the stack
+#            # I also have to go backwards through the lines to figure out
+#            # where the last non-whitespace is, I think.
+#            matched_indent = indents.pop()
+#            result.append((matched_indent,
+#                           srowcol[0] - 1 - nl_counter,
+#                           indent_level + 1))
+#        if toknum not in (tokenize.NL,
+#                          tokenize.NEWLINE,
+#                          tokenize.INDENT,
+#                          tokenize.DEDENT,
+#                          tokenize.COMMENT,
+#                          ):
+#            nl_counter = 0
+#
+#    if len(indents) != 0:
+#        raise ValueError("Number of DEDENTs does not match number of INDENTs.")
+#
+#    return result
 
 
 def split_blocks(code, fold_points):
@@ -302,11 +305,11 @@ def main():
     """ Main Code """
     args = docopt(__doc__, version='v0.1')
 
-    if args['FILE'] is None:
-        args['FILE'] = file_prompt()
-        if args['FILE'] == 'exit':
-            print("Exiting Program")
-            return
+#    if args['FILE'] is None:
+#        args['FILE'] = file_prompt()
+#        if args['FILE'] == 'exit':
+#            print("Exiting Program")
+#            return
 
     if args['--new-file']:
         print("A new file will be made.")
@@ -361,9 +364,9 @@ print(5)"""
     file_1 = os.path.join(root_dir, test_data_path, file_1_name)
 #    print_tokens(file_1)
     
-    folds = find_fold_points(block_2)
-    print(folds)
-    split_blocks(block_2, folds)
+#    folds = find_fold_points(block_2)
+#    print(folds)
+#    split_blocks(block_2, folds)
     
 
 

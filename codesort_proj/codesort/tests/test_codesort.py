@@ -184,106 +184,110 @@ class ClassifyBlock(unittest.TestCase):
 #            self.assertEqual(result, expected)
 
 
-class FindFoldPoints(unittest.TestCase):
-    """ testing the find_folds function """
-    test1 = ("""def myfunc(a, b):
-    if a < 0:
-        return b
-    if a > 0:
-        return a + b
-    return 0
-
-def myfunc2(a):
-    return 'xsdfsd' + (a-2)*(a+3)""", {(1, 6, 1),
-                                       (2, 3, 2),
-                                       (4, 5, 2),
-                                       (8, 9, 1),
-                                       })
-
-    test2 = ("""def func1(a):
-    return a
-
-def func2(b):
-    return b
-
-def func3(c):
-    return c""", {(1, 2, 1),
-                  (4, 5, 1),
-                  (7, 8, 1),
-                  })
-
-    test3 = ("""import apples
-
-def myfunc(a, b):
-    if a < 0:
-        return b
-    if a > 0:
-        return a + b
-    return 0
-
-def myfunc2(a):
-    return 'xsdfsd' + (a-2)*(a+3)""", {(3, 8, 1),
-                                       (4, 5, 2),
-                                       (6, 7, 2),
-                                       (10, 11, 1),
-                                       })
-    known_values = (test1,
-                    test2,
-                    test3,
-                    )
-
-    root_dir = os.getcwd()
-    test_data_path = r"codesort\\tests\\test_data"
-    file_1_name = "sorted_1.py"
-    file_1 = os.path.join(root_dir, test_data_path, file_1_name)
-    file_1_result = {(10, 34, 1),
-                     (12, 14, 2),
-                     (16, 18, 2),
-                     (20, 22, 2),
-                     (24, 26, 2),
-                     (28, 30, 2),
-                     (32, 34, 2),
-                     (37, 61, 1),
-                     (39, 41, 2),
-                     (43, 45, 2),
-                     (47, 49, 2),
-                     (51, 53, 2),
-                     (55, 57, 2),
-                     (59, 61, 2),
-                     (64, 66, 1),
-                     (69, 71, 1),
-                     (74, 76, 1),
-                     (79, 81, 1)}
-
-    def test_known_values(self):
-        """ docstring """
-        for code_block, folds in self.known_values:
-            result = codesort.find_fold_points(code_block)
-            self.assertSetEqual(set(result), folds)
-
-    def test_known_file(self):
-        with open(self.file_1) as openfile:
-            file_text = "".join(openfile.readlines())
-        result = codesort.find_fold_points(file_text)
-        self.assertSetEqual(set(result), self.file_1_result)
-
-
-class SplitBlocks(unittest.TestCase):
-    """ doc """
-    def test_known_values(self):
-        """ doc """
-        for path in SORTED_TEST_PATHS:
-            with open(path) as openfile:
-                file_text = "".join(openfile.readlines())
-            try:
-                # TODO: remove dependence on find_fold_points
-                #   (This currently tests two things which is a no-no.)
-                codesort.split_blocks(file_text,
-                                      codesort.find_fold_points(file_text))
-                passed = True
-            except:
-                passed = False
-            self.assertTrue(passed)
+#class FindFoldPoints(unittest.TestCase):
+#    """ testing the find_folds function """
+#    test1 = ("""def myfunc(a, b):
+#    if a < 0:
+#        return b
+#    if a > 0:
+#        return a + b
+#    return 0
+#
+#def myfunc2(a):
+#    return 'xsdfsd' + (a-2)*(a+3)""", {(1, 6, 1),
+#                                       (2, 3, 2),
+#                                       (4, 5, 2),
+#                                       (8, 9, 1),
+#                                       })
+#
+#    test2 = ("""def func1(a):
+#    return a
+#
+#def func2(b):
+#    return b
+#
+#def func3(c):
+#    return c""", {(1, 2, 1),
+#                  (4, 5, 1),
+#                  (7, 8, 1),
+#                  })
+#
+#    test3 = ("""import apples
+#
+#def myfunc(a, b):
+#    if a < 0:
+#        return b
+#    if a > 0:
+#        return a + b
+#    return 0
+#
+#def myfunc2(a):
+#    return 'xsdfsd' + (a-2)*(a+3)""", {(3, 8, 1),
+#                                       (4, 5, 2),
+#                                       (6, 7, 2),
+#                                       (10, 11, 1),
+#                                       })
+#    known_values = (test1,
+#                    test2,
+#                    test3,
+#                    )
+#
+#    root_dir = os.getcwd()
+#    test_data_path = r"codesort\\tests\\test_data"
+#    file_1_name = "sorted_1.py"
+#    file_1 = os.path.join(root_dir, test_data_path, file_1_name)
+#    file_1_result = {(10, 34, 1),
+#                     (12, 14, 2),
+#                     (16, 18, 2),
+#                     (20, 22, 2),
+#                     (24, 26, 2),
+#                     (28, 30, 2),
+#                     (32, 34, 2),
+#                     (37, 61, 1),
+#                     (39, 41, 2),
+#                     (43, 45, 2),
+#                     (47, 49, 2),
+#                     (51, 53, 2),
+#                     (55, 57, 2),
+#                     (59, 61, 2),
+#                     (64, 66, 1),
+#                     (69, 71, 1),
+#                     (74, 76, 1),
+#                     (79, 81, 1)}
+#
+#    def test_known_values(self):
+#        """ docstring """
+#        for code_block, folds in self.known_values:
+##            result = codesort.find_fold_points(code_block)
+#            result = ffp.find_fold_points(code_block)
+#            self.assertSetEqual(set(result), folds)
+#
+#    def test_known_file(self):
+#        with open(self.file_1) as openfile:
+#            file_text = "".join(openfile.readlines())
+##        result = codesort.find_fold_points(file_text)
+#        result = ffp.find_fold_points(file_text)
+#        self.assertSetEqual(set(result), self.file_1_result)
+#
+#
+#class SplitBlocks(unittest.TestCase):
+#    """ doc """
+#    def test_known_values(self):
+#        """ doc """
+#        for path in SORTED_TEST_PATHS:
+#            with open(path) as openfile:
+#                file_text = "".join(openfile.readlines())
+#            try:
+#                # TODO: remove dependence on find_fold_points
+#                #   (This currently tests two things which is a no-no.)
+##                codesort.split_blocks(file_text,
+##                                      codesort.find_fold_points(file_text))
+#                codesort.split_blocks(file_text,
+#                                      ffp.find_fold_points(file_text))
+#                passed = True
+#            except:
+#                passed = False
+#            self.assertTrue(passed)
 
 
 if __name__ == "__main__":
