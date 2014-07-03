@@ -3,46 +3,57 @@
 Created on Wed Jun 18 16:50:37 2014
 
 @name:          codesort.py
-@vers:          0.1
+@vers:          0.1.0
 @author:        dthor
 @created:       Wed Jun 18 16:50:37 2014
 @descr:         A python source code organization tool.
 
-        Sorts the python file according to the sorting schema:
+    Sorts the python file according to the sorting schema. Since class
+    and function definitions do not need to be in execution order or
+    definition-use order, we can organize the source code alphabetically.
+    This tool will take a .py file and organize it. This helps the programmer
+    maintain uniformity across his projects, making it easier to find
+    function definitions.
 
-        1. Source file encoding ("# -- coding: utf-8 --")
-        2. Module docstring / comments
-        3. Import statements
-            a. __future__ import statements
-            b. standard library imports
-            c. 3rd party imports
-            d. local package imports
-        4. Module constants
-        5. Classes (organized alphabetically)
-            a. Class docstring
-            b. Overriding methods
-                1. __init__
-                2. __new__
-                3. __del__
-                4. __str__
-                5. __repr__
-                6. __cmp__
-                7. __hash__
-                8. __nonzero__
-                9. __unicode__
-                10. __getattr__
-                11. __setattr__
-                12. __delattr__
-                13. __getattribute__
-                14. __get__
-                15. __set__
-                16. __delete__
-            c. Private methods (organized alphabetically)
-            d. Public methods (organized alphabetically)
-        6. Module functions (organized alphabetically)
-        7. Main() function
-        8. toplevel module code
-        9. if __name__ == '__main__' block
+    The Sorting Schema:
+    1. Source file encoding ("# -- coding: utf-8 --")
+    2. Module docstring / comments
+    3. Import statements
+        a. __future__ import statements
+        b. standard library imports
+        c. 3rd party imports
+        d. local package imports
+    4. Module constants
+        a. "Magic" globals (__author__, __version__, etc.)
+        b. Module globals
+    5. Classes (organized alphabetically)
+        a. Class docstring
+        b. Overriding methods
+            1. __init__
+            2. __new__
+            3. __del__
+            4. __str__
+            5. __repr__
+            6. __cmp__
+            7. __hash__
+            8. __nonzero__
+            9. __unicode__
+            10. __getattr__
+            11. __setattr__
+            12. __delattr__
+            13. __getattribute__
+            14. __get__
+            15. __set__
+            16. __delete__
+        c. Private methods (organized alphabetically)
+        d. Public methods (organized alphabetically)
+    6. Module functions (organized alphabetically)
+    7. Main() function
+    8. toplevel module code
+    9. if __name__ == '__main__' block
+
+Requires:
+    docopt >= 0.6.1         Python command-line argument parser
 
 Usage:
     codesort.py
@@ -66,6 +77,8 @@ import find_fold_points as ffp
 
 
 __author__ = "Douglas Thor"
+__version__ = "CodeSort v0.1.0"
+__license__ = "MIT"
 
 
 BLOCK_TYPE = [(re.compile(r'[ ]*@.'), 'decorator'),
@@ -297,7 +310,7 @@ def split_blocks(code, fold_points):
 
 def main():
     """ Main Code """
-    args = docopt(__doc__, version='v0.1')
+    args = docopt(__doc__, version=__version__)
 
 #    if args['FILE'] is None:
 #        args['FILE'] = file_prompt()
@@ -365,5 +378,4 @@ print(5)"""
 
 
 if __name__ == "__main__":
-    print("Random code addition for SVN check")
     main()

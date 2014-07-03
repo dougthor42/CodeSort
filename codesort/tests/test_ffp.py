@@ -13,7 +13,7 @@ Created on Wed Jul 02 17:06:51 2014
 from __future__ import print_function
 import unittest
 import os
-import find_fold_points as ffp
+import codesort.find_fold_points as ffp
 
 
 class FindFoldPoints(unittest.TestCase):

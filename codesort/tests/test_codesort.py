@@ -13,8 +13,8 @@ Created on Wed Jun 18 16:26:08 2014
 from __future__ import print_function, division
 import unittest
 import os
-import codesort
-import find_fold_points as ffp
+import codesort.codesort as codesort
+import codesort.find_fold_points as ffp
 
 
 # Module constants used in most test cases
