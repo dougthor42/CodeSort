@@ -6,8 +6,43 @@ Created on Wed Jun 18 16:50:37 2014
 @vers:          0.1
 @author:        dthor
 @created:       Wed Jun 18 16:50:37 2014
-@modified:      Wed Jun 18 16:50:37 2014
-@descr:         A new file
+@descr:         A python source code organization tool.
+
+        Sorts the python file according to the sorting schema:
+
+        1. Source file encoding ("# -- coding: utf-8 --")
+        2. Module docstring / comments
+        3. Import statements
+            a. __future__ import statements
+            b. standard library imports
+            c. 3rd party imports
+            d. local package imports
+        4. Module constants
+        5. Classes (organized alphabetically)
+            a. Class docstring
+            b. Overriding methods
+                1. __init__
+                2. __new__
+                3. __del__
+                4. __str__
+                5. __repr__
+                6. __cmp__
+                7. __hash__
+                8. __nonzero__
+                9. __unicode__
+                10. __getattr__
+                11. __setattr__
+                12. __delattr__
+                13. __getattribute__
+                14. __get__
+                15. __set__
+                16. __delete__
+            c. Private methods (organized alphabetically)
+            d. Public methods (organized alphabetically)
+        6. Module functions (organized alphabetically)
+        7. Main() function
+        8. toplevel module code
+        9. if __name__ == '__main__' block
 
 Usage:
     codesort.py
@@ -27,6 +62,7 @@ import os.path
 import re
 import tokenize
 import StringIO
+import find_fold_points as ffp
 
 
 __author__ = "Douglas Thor"
@@ -60,7 +96,9 @@ class CodeSort(object):
         return "CodeSort Class for {}".format(self.filepath)
 
     def sort(self):
-        """ Sorts the python file according to the sorting schema """
+        """
+        Sorts the python file according to the sorting schema.
+        """
 #
 #        The Algorithm:
 #        First, we obviously need to open the file.
@@ -236,56 +274,12 @@ def print_tokens(code):
             indent_pos -= 1
 
 
-#def find_fold_points(block):
-#    """
-#    Returns a list of (start_row, end_row, indent) tuples that denote fold
-#    locations. Basically anywhere that there's an indent.
-#    """
-#    import find_fold_points as ffp
-#    return ffp.find_fold_points(block)
-    
-#    token_block = tokenize.generate_tokens(StringIO.StringIO(block).readline)
-#    indent_level = 0
-#    nl_counter = 0
-#    indents = []
-#    result = []
-#    for toknum, tokval, srowcol, erowcol, logical_l in token_block:
-#        if toknum == tokenize.NL:
-#            # Then it's a blank line and we need to add too the blank counter
-#            # when the DEDENT is found, then we subtract counter from the line
-#            # number and also reset the counter.
-#            # Also reset the counter if there is anything in between.
-#            nl_counter += 1
-#
-#        if toknum == tokenize.INDENT:
-#            # TODO: Add make sure that comment lines are done correctly
-#            #   For example: a comment on the line after "def" will not show
-#            #   up as an indent even though it is indented.
-#            indent_level += 1
-#            indents.append(srowcol[0] - 1)
-#
-#        if toknum == tokenize.DEDENT:
-#            indent_level -= 1
-#            # the next DEDENT belongs to the most recent INDENT, so we pop off
-#            # the last indent from the stack
-#            # I also have to go backwards through the lines to figure out
-#            # where the last non-whitespace is, I think.
-#            matched_indent = indents.pop()
-#            result.append((matched_indent,
-#                           srowcol[0] - 1 - nl_counter,
-#                           indent_level + 1))
-#        if toknum not in (tokenize.NL,
-#                          tokenize.NEWLINE,
-#                          tokenize.INDENT,
-#                          tokenize.DEDENT,
-#                          tokenize.COMMENT,
-#                          ):
-#            nl_counter = 0
-#
-#    if len(indents) != 0:
-#        raise ValueError("Number of DEDENTs does not match number of INDENTs.")
-#
-#    return result
+def find_fold_points(block):
+    """
+    Returns a list of (start_row, end_row, indent) tuples that denote fold
+    locations. Basically anywhere that there's an indent.
+    """
+    return ffp.find_fold_points(block)
 
 
 def split_blocks(code, fold_points):
