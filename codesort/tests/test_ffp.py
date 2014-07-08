@@ -141,7 +141,6 @@ def myfunc2(a):
         result = ffp.find_fold_points(file_text)
         self.assertSetEqual(set(result), self.file_1_result)
 
-
     def test_known_file2(self):
         """ Run find_fold_points a on known file. """
         with open(self.file_1_path) as openfile:
