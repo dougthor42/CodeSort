@@ -73,6 +73,7 @@ import os.path
 import re
 import tokenize
 import StringIO
+import pyclbr
 import find_fold_points as ffp
 
 
@@ -379,3 +380,12 @@ print(5)"""
 
 if __name__ == "__main__":
     main()
+
+    path = ["X:\\WinPython27\\projects\\github\\CodeSort\\trunk\\codesort"]
+    a = pyclbr.readmodule_ex("codesort", path=path)
+    print(a)
+    for k, v in a.items():
+        if isinstance(v, pyclbr.Function):
+            print(k, v.name)
+        elif isinstance(v, pyclbr.Class):
+            print(k, v.methods)
